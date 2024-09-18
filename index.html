@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumping Spider Meme</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header, footer {
+            background-color: #333;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+        }
+
+        a {
+            color: #00aced;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        #spider-meme {
+            position: absolute;
+            width: 100px;
+            height: auto;
+        }
+
+        #web-line {
+            position: absolute;
+            width: 2px;
+            background-color: #fff;
+            transform-origin: top left;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Jumping Spider Meme</h1>
+</header>
+
+<img id="spider-meme" src="sticker.webp" alt="Spider Meme">
+<div id="web-line"></div>
+
+<footer>
+    <p>
+        Follow us on
+        <a href="https://twitter.com" target="_blank">Twitter</a> |
+        <a href="https://telegram.org" target="_blank">Telegram</a>
+    </p>
+</footer>
+
+<script>
+    const memeImage = document.getElementById('spider-meme');
+    const webLine = document.getElementById('web-line');
+
+    function getRandomPosition() {
+        const maxWidth = window.innerWidth - memeImage.width;
+        const maxHeight = window.innerHeight - memeImage.height;
+        const randomX = Math.floor(Math.random() * maxWidth);
+        const randomY = Math.floor(Math.random() * maxHeight);
+        return { x: randomX, y: randomY };
+    }
+
+    function jumpToPosition(targetX, targetY) {
+        const startPosition = {
+            x: memeImage.offsetLeft + memeImage.width / 2,
+            y: memeImage.offsetTop + memeImage.height / 2
+        };
+        const endPosition = { x: targetX, y: targetY };
+
+        // Position the web line
+        webLine.style.display = 'block';
+        webLine.style.left = startPosition.x + 'px';
+        webLine.style.top = startPosition.y + 'px';
+
+        const deltaX = endPosition.x - startPosition.x;
+        const deltaY = endPosition.y - startPosition.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+        // Set the web line's initial length and rotation
+        webLine.style.transform = `rotate(${angle}deg)`;
+        webLine.style.height = distance + 'px';
+
+        // Animate the jump
+        const duration = 1000; // Jump duration in milliseconds
+        let startTime = null;
+
+        function animateJump(currentTime) {
+            if (!startTime) startTime = currentTime;
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+
+            // Calculate Spider-Man's position along the line
+            const currentX = startPosition.x + deltaX * progress;
+            const currentY = startPosition.y + deltaY * progress;
+
+            // Update Spider-Man's position
+            memeImage.style.left = currentX - memeImage.width / 2 + 'px';
+            memeImage.style.top = currentY - memeImage.height / 2 + 'px';
+
+            // Update the web line to follow Spider-Man's movement
+            webLine.style.height = distance * progress + 'px';
+
+            if (progress < 1) {
+                requestAnimationFrame(animateJump);
+            } else {
+                // Hide the web line after the jump is complete
+                webLine.style.display = 'none';
+                setTimeout(() => {
+                    const newTarget = getRandomPosition();
+                    jumpToPosition(newTarget.x, newTarget.y);
+                }, 500); // Jump again after a short delay
+            }
+        }
+
+        requestAnimationFrame(animateJump);
+    }
+
+    // Start the first jump on page load
+    window.onload = () => {
+        memeImage.style.position = 'absolute';
+        memeImage.style.left = '0px';
+        memeImage.style.top = '0px';
+        const initialTarget = getRandomPosition();
+        jumpToPosition(initialTarget.x, initialTarget.y);
+    };
+</script>
+</body>
+</html>
